@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { Bool } = require("mongoose/lib/schema/index");
 const userSchema = new mongoose.Schema(
     {
         firstName:{
@@ -23,6 +24,10 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        verified:{
+            type: Boolean,
+            default: false,
+        },
         phone:{
             type: String,
         //password can be 10 digits, between 0 and 9 (number)
@@ -39,4 +44,19 @@ const userSchema = new mongoose.Schema(
     {timestamps: true}
 );
 
-module.exports = mongoose.model("User", userSchema);
+const validate = (user) => {
+    const schema = Joi.object({
+      firstName: Joi.string().min(3).max(255).required(),
+      lastName: Joi.string().min(3).max(255).required(),
+      email: Joi.string().email().required(),
+      password: Joi.string().min(3).max(255).required()
+    });
+    return schema.validate(user);
+  };
+  
+const User = mongoose.model("User", userSchema);
+
+module.exports = {
+    User,
+    validate
+}
